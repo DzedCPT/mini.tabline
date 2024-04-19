@@ -267,9 +267,10 @@ H.construct_label_data = function(buf_id)
   local label, label_extender
 
   local bufpath = vim.api.nvim_buf_get_name(buf_id)
+  local modified_label = vim.bo[buf_id].modified and "+" or ""
   if bufpath ~= '' then
     -- Process path buffer
-    label = vim.fn.fnamemodify(bufpath, ':t')
+    label = vim.fn.fnamemodify(bufpath, ':t') .. modified_label
     label_extender = H.make_path_extender(buf_id)
   else
     -- Process unnamed buffer
@@ -363,8 +364,9 @@ H.finalize_labels = function()
 
   for _, tab in pairs(H.tabs) do
     if show_icons and has_devicons then
-      local extension = vim.fn.fnamemodify(tab.label, ':e')
-      local icon = devicons.get_icon(tab.label, extension, { default = true })
+      local label = string.gsub(tab.label, "%+$", "")
+      local extension = vim.fn.fnamemodify(label, ':e')
+      local icon = devicons.get_icon(label, extension, { default = true })
       tab.label = string.format(' %s %s ', icon, tab.label)
     else
       tab.label = string.format(' %s ', tab.label)
